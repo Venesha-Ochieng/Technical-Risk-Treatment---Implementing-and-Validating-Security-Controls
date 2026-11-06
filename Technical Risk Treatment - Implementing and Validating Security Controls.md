@@ -34,12 +34,14 @@ sudo apt update
 sudo apt install -y nginx ufw python3 curl
 ip -br addr
 ```
+![Step 1.1](images/1.1.png)
 
 ### For Kali
 
 ```bash
 ip -br addr
 ```
+![Step 1.2](images/1.2.png)
 
 ## Step 2 Create Fictional Content and a Legacy Service
 
@@ -54,6 +56,7 @@ printf 'Legacy training endpoint\n' | sudo tee /srv/grc-legacy/index.html
 
 sudo chmod -R a+rX /var/www/grc-lab /srv/grc-legacy
 ```
+![Step 2.1](images/2.1.png)
 
 Create a lab-only systemd unit. This service is deliberately unnecessary; it contains no real data.
 
@@ -70,13 +73,16 @@ ExecStart=/usr/bin/python3 -m http.server 8080 --bind 0.0.0.0 --directory /srv/g
 WantedBy=multi-user.target
 EOF
 ```
+![Step 2.2](images/2.2.png)
 
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now grc-legacy
 ```
+![Step 2.3](images/2.3.png)
 
 ### Verification
+![Step 2.4](images/2.4.png)
 
 ## Step 3 Configure the Lab Web Service
 
@@ -92,12 +98,14 @@ server {
 }
 EOF
 ```
+![Step 3.1](images/3.1.png)
 
 ```bash
 sudo ln -s /etc/nginx/sites-available/grc-lab /etc/nginx/sites-enabled/grc-lab
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
 ```
+![Step 3.2](images/3.2.png)
 
 # 2 Measure Risk and Remove Exposure
 
@@ -112,26 +120,32 @@ cd ~/grc-treatment-evidence
 SERVER_IP=192.168.56.20
 date -Is | tee baseline-time.txt
 ```
+![Step 4.1](images/4.1.png)
 
 ```bash
 nmap -sT -p 80,8080 "$SERVER_IP" -oN baseline-ports.txt
 ```
+![Step 4.2](images/4.2.png)
 
 ```bash
 curl -i "http://$SERVER_IP/" | tee baseline-web.txt
 ```
+![Step 4.3](images/4.3.png)
 
 ```bash
 curl -i "http://$SERVER_IP/archive/" | tee baseline-listing.txt
 ```
+![Step 4.4](images/4.4.png)
 
 ```bash
 curl -i "http://$SERVER_IP/archive/dummy-records.txt" | tee baseline-file.txt
 ```
+![Step 4.5](images/4.5.png)
 
 ```bash
 curl -i "http://$SERVER_IP:8080/" | tee baseline-legacy.txt
 ```
+![Step 4.6](images/4.6.png)
 
 Expected baseline: ports 80 and 8080 are reachable; the root and archive directories list files; the dummy file is retrievable.
 
@@ -143,6 +157,12 @@ sudo ss -lntp
 ```
 
 If the clean lab already has firewall restrictions, resolve them on this disposable VM before collecting the baseline; do not alter a production firewall.
+
+![Step 4.7](images/4.7.png)
+
+## Step 5 Create a baseline risk register
+Create four entries: R1 unnecessary legacy service, R2 exposed archive, R3 unauthorised network access and R4 loss of portal content. For each record the asset, threat event, observed weakness, impact, likelihood, evidence reference and treatment owner.
+For this exercise use likelihood 1–5 and impact 1–5; score = likelihood × impact. Bands: 1–4 Low, 5–9 Medium, 10–16 High, 17–25 Critical. These are classroom decision thresholds, not an external standard. Scores are ordinal and must not be interpreted as monetary loss or statistical probabilities.
 
 # 5.1 Risk Assessment Methodology
 
