@@ -235,3 +235,181 @@ However, the evidence provided does not establish that the portal has a protecte
 This presents a potential availability and recoverability risk. The assessment reflects the absence of demonstrated recovery assurance rather than evidence that a data-loss incident has occurred.
 
 **Recommended treatment - Risk Mitigation and Transfer Evaluation:** Create a protected local backup, record the original file's SHA-256 hash, simulate deletion and perform a verified restoration. Evaluate managed backup services as a potential risk-sharing arrangement while retaining organisational responsibility for recovery assurance.
+
+## Step 6 Apply Avoidance to the Legacy Workflow
+
+### Proposed Change Record
+
+| Change Item | Details |
+|------------|---------|
+| Change Description | Retire the unused legacy HTTP endpoint (TCP 8080) while retaining the approved Nginx portal on TCP 80. |
+| Business Impact | Reduces attack surface by removing an unnecessary service without affecting the approved web portal. |
+| Approval Role | Information Security Manager / IT Infrastructure Manager |
+| Approval Status | **SIMULATED APPROVAL - Classroom Exercise Only** |
+| Pre-Implementation Test | Confirm ports 80 and 8080 are accessible and the legacy endpoint returns HTTP 200 OK. |
+| Rollback Procedure | Re-enable the legacy service using `sudo systemctl enable --now grc-legacy`. |
+| Success Criteria | TCP port 8080 closed, legacy endpoint inaccessible, TCP port 80 remains operational, approved portal remains accessible. |
+
+### 6.1 Risk Avoidance Implementation
+
+**EXECUTE ON UBUNTU SERVER**
+
+```bash
+sudo systemctl disable --now grc-legacy
+sudo systemctl is-active grc-legacy
+sudo ss -lntp
+```
+![Step 6.1](6.1.png)
+
+---
+
+### 6.2 Post-Treatment Validation from Kali Linux
+
+**EXECUTE ON KALI LINUX**
+
+```bash
+nmap -sT -p 80,8080 "$SERVER_IP" -oN avoidance-ports.txt
+```
+
+```bash
+curl -i "http://$SERVER_IP:8080/" | tee avoidance-legacy.txt
+```
+
+```bash
+curl -i "http://$SERVER_IP/public/"
+```
+![Step 6.2](6.2.png)
+
+### 6.3 Rollback Procedure
+If the change causes an unexpected operational issue, the legacy service can be restored using the following command.
+EXECUTE ON UBUNTU SERVER
+![Step 6.3](6.3.png)
+
+## 6.4 Risk Treatment Analysis and Before-and-After Comparison
+
+The risk avoidance treatment was successfully implemented and validated on the Northbridge Services Ubuntu Server (192.168.224.133). The legacy HTTP service operating on TCP port 8080 was disabled, while the approved Nginx web service on TCP port 80 remained operational.
+
+The Ubuntu Server verification confirmed that grc-legacy.service changed to an inactive state and was no longer listening on TCP port 8080. The Kali Linux Nmap scan independently confirmed that port 8080 had changed from open to closed, while port 80 remained open.
+
+Additionally, the HTTP request to the retired legacy endpoint failed with curl error (7), confirming that the service was no longer accessible. The approved portal continued to return HTTP/1.1 200 OK and displayed the expected content, Approved internal portal.
+
+### 6.4.1 Before-and-After Risk Treatment Comparison
+
+| Validation Criteria | Baseline – Step 4 | Post-Treatment – Step 6 | Assessment |
+|--------------------|-------------------|-------------------------|------------|
+| Legacy service status | Active (running) | Inactive | Successful |
+| Legacy startup configuration | Enabled | Disabled | Successful |
+| TCP port 8080 | Open | Closed | Successful |
+| Legacy HTTP endpoint | HTTP 200 OK | Connection failed – curl error (7) | Successful |
+| TCP port 80 | Open | Open | Successful |
+| Approved Nginx portal | HTTP 200 OK | HTTP 200 OK | Successful |
+| Portal content | Approved internal portal | Approved internal portal | Preserved |
+| Final treatment state | Legacy service enabled | Legacy service inactive and disabled | Successful |
+
+The results demonstrate that the risk avoidance control achieved its intended technical objective without interrupting the approved web service.
+
+### 6.4.2 Rollback and Final-State Verification
+
+A rollback command was executed using `sudo systemctl enable --now grc-legacy`, followed by reapplication of the risk avoidance treatment using `sudo systemctl disable --now grc-legacy`.
+
+Final verification confirmed:
+
+- `sudo systemctl is-active grc-legacy` returned **inactive**.
+- `sudo systemctl is-enabled grc-legacy` returned **disabled**.
+- The previously collected Kali evidence confirmed that TCP port 8080 was closed and the approved portal remained accessible.
+
+The rollback command was executed, demonstrating that the service could be re-enabled at the configuration level. However, the screenshots do not include an intermediate HTTP or service-status verification while the legacy service was temporarily restored. Therefore, a fully validated rollback cannot be claimed.
+
+### 6.4.3 Effectiveness and Remaining Risk
+
+The control represents risk avoidance because Northbridge Services discontinued the unnecessary legacy workflow responsible for the identified exposure rather than continuing to operate it with additional security restrictions.
+
+The successful closure of TCP port 8080 removes the network-accessible exposure associated with the retired service. However, this does not eliminate the server's overall cybersecurity risk.
+
+The following exposures remain relevant:
+
+- **R2 - Exposed Archive:** The archive requires access restrictions to prevent unauthorised document retrieval.
+- **R3 - Unauthorised Network Access:** The approved web service requires source-IP restrictions through UFW.
+- **R4 - Loss of Portal Content:** Protected backups and verified restoration are required to address availability and recovery risks.
+
+Consequently, additional preventive, detective and corrective controls remain necessary to reduce the residual risk associated with the approved Nginx service.
+
+# 3 Implement and Test Preventive Controls
+## Step 7 Remove Archive Publication
+
+On Ubuntu, move the archive outside the web root and restrict it to root. Add an explicit denial for the old URL. This both removes web publication and blocks the retired path.
+
+```bash
+sudo mkdir -p /srv/grc-private
+sudo mv /var/www/grc-lab/archive /srv/grc-private/
+sudo chmod -R go-rwx /srv/grc-private
+```
+
+```bash
+sudo tee /etc/nginx/sites-available/grc-lab > /dev/null <<'EOF'
+server {
+    listen 80;
+    server_name _;
+    root /var/www/grc-lab;
+    access_log /var/log/nginx/grc_access.log combined;
+    error_log /var/log/nginx/grc_error.log;
+
+    location / { autoindex off; }
+
+    location /archive/ { deny all; }
+}
+EOF
+```
+![Step 7.1](7.1.png)
+
+```bash
+sudo nginx -t && sudo systemctl reload nginx
+```
+From Kali, verify /public/ remains HTTP 200, while /archive/ and /archive/dummy-records.txt return HTTP 403. Verify / returns 403 because directory listing is disabled and no root index exists. Save responses and explain why disabling listings alone would not prevent direct-file access.
+
+![Step 7.2](7.2.png)
+
+## Step 8 Restrict Network Access with UFW
+
+Use the Ubuntu VM console, not an SSH-only connection.
+
+```bash
+KALI_IP=192.168.56.10
+```
+
+```bash
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow from "$KALI_IP" to any port 80 proto tcp
+sudo ufw logging on
+sudo ufw enable
+sudo ufw status numbered
+```
+![Step 8.1](8.1.png)
+
+From the approved Kali address, request /public/ and confirm HTTP 200. For a blocked-source test use another VM, or add a second unused address on Kali’s isolated interface. First confirm the interface name with ip -br addr; replace eth0 and the sample address below with valid lab values. Ensure the second address is unused and in the same subnet.
+
+![Step 8.2](8.2.png)
+
+```bash
+sudo ip addr add 192.168.56.11/24 dev eth0
+
+curl --interface 192.168.56.11 --connect-timeout 5 "http://$SERVER_IP/public/"
+
+sudo ip addr del 192.168.56.11/24 dev eth0
+```
+![Step 8.3](8.3.png)
+
+Expected: the unapproved source times out and does not receive the portal. Record the source address and timestamp. A timeout alone is insufficient proof: retain UFW rule output and corroborating firewall logs. Restore normal access if testing fails; console rollback is sudo ufw disable. Reapply the intended rules afterwards.
+
+### Record the source IP address and timestamp
+![Step 8.4](8.4.png)
+
+### Retain UFW rule output
+![Step 8.5](8.5.png)
+
+### corroborating firewall log
+![Step 8.6](8.6.png)
+
+### Restore normal access if testing fails
+![Step 8.7](8.7.png)
