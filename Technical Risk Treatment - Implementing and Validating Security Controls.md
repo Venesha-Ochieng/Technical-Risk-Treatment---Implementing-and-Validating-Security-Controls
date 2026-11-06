@@ -34,7 +34,7 @@ sudo apt update
 sudo apt install -y nginx ufw python3 curl
 ip -br addr
 ```
-![Step 1.1](images/1.1.png)
+![Step 1.1](1.1.png)
 
 ### For Kali
 
