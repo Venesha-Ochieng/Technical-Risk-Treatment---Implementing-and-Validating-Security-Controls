@@ -56,7 +56,7 @@ printf 'Legacy training endpoint\n' | sudo tee /srv/grc-legacy/index.html
 
 sudo chmod -R a+rX /var/www/grc-lab /srv/grc-legacy
 ```
-![Step 2.1](images/2.1.png)
+![Step 2.1](images/2.1.png
 
 Create a lab-only systemd unit. This service is deliberately unnecessary; it contains no real data.
 
