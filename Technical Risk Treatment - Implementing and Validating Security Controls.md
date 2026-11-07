@@ -931,13 +931,13 @@ The $440 illustrative financial net benefit applies only to the separate Option 
 
 The cost-benefit and residual risk assessment demonstrates that Northbridge Services can adopt a combination of hardening, managed backup and TLS deployment at a fictional combined first-year cost of $610. 【1-138756】
 
-The illustrative managed-backup scenario produces a baseline ALE of $1,000, residual ALE of $200, annual expected benefit of $800 and first-year net benefit of $440. These values depend on classroom assumptions and have not been established through observed financial outcomes. 【1-138756】
+The illustrative managed-backup scenario produces a baseline ALE of $1,000, residual ALE of $200, annual expected benefit of $800 and first-year net benefit of $440. These values depend on classroom assumptions and have not been established through observed financial outcomes. 
 
 The residual risk reassessment indicates that the implemented controls have reduced exposure associated with the retired legacy service, archive disclosure and unauthorised network access. However, the loss-of-portal-content risk remains dependent on backup architecture limitations and recovery assurance evidence. 【1-138756】
 
 Further treatment should prioritise separately protected recovery arrangements, completion of outstanding control-validation evidence, TLS implementation where required and continuous monitoring. 【1-138756】
 
-**Calculation workbook:** GRC103_Week 3 Practical Lab Technical Risk Treatment - Implementing and Validating Security Controls_C11-26-CGRCE-17566_Venesha_Ochieng.xlsx 
+**Calculation workbook:** [GRC103_Week 3 Practical Lab Technical Risk Treatment - Implementing and Validating Security Controls_C11-26-CGRCE-17566_Venesha_Ochieng.xlsx ](https://icdfaacademy-my.sharepoint.com/:x:/g/personal/c11_cgrce2617566_icdfa_edu_ng/IQBCndB1HbZPRZhtL7kG74IEAbwfHDO_xvYnfL0zJxKXwHQ?e=xQXVez)
 
 ### Technical References
 
