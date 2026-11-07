@@ -757,5 +757,192 @@ Acceptance is therefore conditional on maintaining the classroom environment's r
 
 If the assessed risk exceeds the classroom risk appetite, temporary acceptance should not proceed. The matter should instead be escalated to the authorised risk owner for additional treatment, such as TLS deployment.
 
+## Step 12 Compare costs and remaining risk
+Use these fictional first-year options: A hardening work, 4 hours at $25/hour plus $50 annual maintenance; B managed backup, $120 setup plus $20/month; C TLS deployment, 3 hours at $25/hour plus $25 annual maintenance. Choose and justify a combination. Show first-year cost = setup + labour + annual recurring cost. Explain excluded costs.
+For a separate illustrative backup scenario only, assume annual occurrence rate 0.2, loss per event $5,000 and a tested recovery control assumed to reduce loss per event to $1,000. Calculate baseline and residual ALE, annual benefit and first-year net benefit for option B. Label every figure as an assumption; the recovery test does not establish these financial estimates. Do not sum overlapping benefits or convert ordinal risk scores into dollar savings.
+Reassess R1–R4 using your actual tests. Record residual likelihood, impact, score, evidence, owner and review trigger. A configured control is not automatically effective; mark untested outcomes accordingly.
 
+## 12.1 First-Year Risk Treatment Cost Comparison
+The first-year cost is calculated as:
+
+**First-Year Cost = Setup Cost + Labour Cost + Annual Recurring Cost**
+
+| Cost Component | Option A: Hardening | Option B: Managed Backup | Option C: TLS |
+|----------------|--------------------|--------------------------|--------------|
+| Setup cost | $0 | $120 | $0 |
+| Labour hours | 4 | 0 (not specified) | 3 |
+| Labour rate | $25/hr | Not specified | $25/hr |
+| Labour cost | $100 | $0 assumed | $75 |
+| Annual maintenance / recurring | $50 | $240 | $25 |
+| Total first-year cost | $150 | $360 | $100 |
+
+### Cost Calculations
+
+**Option A – Hardening**
+
+(4 × $25) + $50 = $150
+
+**Option B – Managed Backup**
+
+$120 + (12 × $20) = $360
+
+**Option C – TLS Deployment**
+
+(3 × $25) + $25 = $100
+
+### First-Year Security Control Costs
+![Step 12.1](12.1.png)
+
+#### Recommended Control Combination
+
+Northbridge Services should adopt Options A + B + C as a proposed layered treatment strategy, subject to management approval.
+
+| Option | First-Year Cost | Justification |
+|----------|---------------|--------------|
+| A – Hardening | $150 | Maintains reduced attack surface, archive restrictions and controlled network access. |
+| B – Managed Backup | $360 | Addresses the limitations of same-host backups through separately protected recovery arrangements. |
+| C – TLS Deployment | $100 | Reduces the remaining risk of HTTP traffic interception and modification. |
+| Combined investment | $610 | Addresses preventive, corrective and communication-security weaknesses. |
+
+Option A's technical controls have been tested in the laboratory. Option B remains a fictional service proposal, and Option C has not been implemented or validated. Therefore, the combined investment is a recommendation, not an expenditure already incurred. 【1-138756】
+
+### Excluded Costs
+
+The cost estimates exclude additional hardware, storage expansion, system downtime, staff training, monitoring software, vendor due diligence, contract management, incident response, backup-storage growth, certificate-related expenses and other operational costs not specified in the assignment.
+
+Consequently, the $610 estimate represents only the fictional first-year costs of the three stated options. 
+
+---
+
+## 12.2 Illustrative Backup Cost-Benefit Analysis
+
+This analysis applies only to the separate backup scenario prescribed in the assignment.
+
+### Financial Assumptions
+
+| Parameter | Assumed Value |
+|------------|--------------|
+| Annual Rate of Occurrence (ARO) | 0.2 events/year |
+| Baseline loss per event (SLE) | $5,000 |
+| Residual loss per event after tested recovery | $1,000 |
+| Option B first-year cost | $360 |
+
+These figures are hypothetical. The successful Step 10 recovery test does not independently establish the assumed incident frequency, financial losses or expected savings. 
+
+### 12.2.1 Baseline Annualised Loss Expectancy
+
+**Baseline ALE = ARO × Baseline SLE**
+
+0.2 × $5,000 = **$1,000**
+
+### 12.2.2 Residual Annualised Loss Expectancy
+
+**Residual ALE = ARO × Residual SLE**
+
+0.2 × $1,000 = **$200**
+
+### 12.2.3 Annual Expected Benefit
+
+**Annual Benefit = Baseline ALE − Residual ALE**
+
+$1,000 − $200 = **$800**
+
+### 12.2.4 First-Year Net Benefit
+
+**Net Benefit = Annual Benefit − Option B Cost**
+
+$800 − $360 = **$440**
+
+The scenario indicates that the assumed annual benefit of $800 exceeds the $360 first-year cost of Option B, producing a positive illustrative net benefit of $440.
+
+However, this result depends entirely on the prescribed assumptions. Managed backup implementation and its financial benefits have not been validated in the laboratory.
+
+No financial benefit is assigned to Options A or C because the assignment does not provide separate loss-reduction estimates for those controls. Overlapping control benefits must not be added together. 【1-138756】
+
+---
+
+## 12.3 Residual Risk Reassessment (R1–R4)
+
+Following the technical risk treatment activities completed in Steps 6–10, the four baseline risks were reassessed using the observed control effectiveness.
+
+Residual risk represents the exposure remaining after implemented controls have been considered.
+
+\[
+\text{Residual Risk Score}=\text{Residual Likelihood}\times\text{Residual Impact}
+\]
+
+The residual scores below are proposed qualitative assessments based on the available evidence. They are not automatically reduced simply because a control was configured.
+
+### 12.3.1 Residual Risk Register
+
+| Risk | Baseline Risk | Residual Likelihood | Residual Impact | Residual Score | Rating |
+|--------|--------------|--------------------|----------------|---------------|---------|
+| R1 - Unnecessary Legacy Service | 16 - High | 1 | 4 | 4 | Low |
+| R2 - Exposed Archive | 16 - High | 2 | 4 | 8 | Medium |
+| R3 - Unauthorised Network Access | 12 - High | 2 | 4 | 8 | Medium |
+| R4 - Loss of Portal Content | 12 - High | 3 | 3 | 9 | Medium |
+
+### Inherent vs. Residual Risk Scores
+![Step 12.2](12.2.png)
+
+### 12.3.2 Residual Risk Evidence, Ownership and Review Triggers
+
+| Risk | Technical Evidence and Control Effectiveness | Treatment Owner | Review Trigger |
+|--------|--------------------------------------------|----------------|---------------|
+| R1 | grc-legacy.service confirmed inactive and disabled; Nmap confirmed TCP 8080 closed while TCP 80 remained open. **Verified at test time.** | IT Infrastructure / Server Administrator | Legacy service reactivation, unexpected reopening of TCP 8080 or unauthorised configuration changes. |
+| R2 | Archive relocated; Nginx syntax passed; direct dummy-file request HTTP 403. Specific post-treatment /archive/ check not retained in reviewed evidence. **Partially verified.** | Web Administrator / Asset Owner | Archive becomes accessible, HTTP 200 appears for a protected path or permissions drift. |
+| R3 | Approved HTTP 200; UFW BLOCK log SRC=192.168.224.131 DST=192.168.224.133 DPT=80. **Verified for tested source.** | Network Security Administrator | Unexpected open ports, firewall-rule changes or successful access from an unauthorised source. |
+| R4 | Local restore command completed; SHA-256 OK; restored HTTP 200. Full recovery start time and failed-service response not retained in reviewed evidence. **Partially verified.** | Backup Administrator | Failed recovery test, integrity mismatch, host failure, backup loss or unacceptable recovery delay. |
+
+### 12.3.3 Residual Risk Analysis
+
+#### R1 - Unnecessary Legacy Service: Low (4)
+
+The legacy endpoint was successfully disabled, and the post-treatment scan confirmed TCP port 8080 was closed. The likelihood is provisionally reduced from 4 to 1, while the potential impact remains 4 because the service could be reintroduced through configuration changes. Continued monitoring is necessary to detect reactivation.
+
+#### R2 - Exposed Archive: Medium (8)
+
+Moving archived files outside the Nginx web root, restricting permissions and denying access to the previous URL substantially reduces the likelihood of unauthorised disclosure. The residual likelihood is provisionally reduced to 2, while impact remains 4. Final validation should retain a direct `/archive/` HTTP 403 response.
+
+#### R3 - Unauthorised Network Access: Medium (8)
+
+UFW source-IP restrictions reduce exposure to unauthorised network clients. The successful approved request and corresponding firewall block logs support the likelihood reduction to 2. Impact remains 4 because successful exploitation through an authorised connection or misconfiguration could still affect the server.
+
+#### R4 - Loss of Portal Content: Medium (12)
+
+The successful SHA-256 check and restored HTTP 200 response demonstrate useful file-level recovery capability. Nevertheless, the backup is stored on the same host, and complete host-loss recovery has not been demonstrated. The residual risk remains Medium and requires continued treatment through backup enhancement and recovery validation. 
+
+---
+
+## 12.4 Control Effectiveness and Treatment Decision
+
+The evidence demonstrates that several implemented controls achieved their immediate technical objectives. However, their longer-term effectiveness requires monitoring and periodic testing.
+
+The following treatment decisions are recommended:
+
+- **Risk avoidance:** Retain the disabled legacy endpoint and monitor for configuration drift.
+- **Risk mitigation:** Maintain archive restrictions and UFW controls, with periodic testing.
+- **Risk transfer:** Evaluate the proposed managed-backup service to address the limitations of same-host recovery.
+- **Risk acceptance:** Temporarily accept plain HTTP only under the conditions documented in Step 11, pending TLS deployment or risk reassessment.
+
+The $440 illustrative financial net benefit applies only to the separate Option B backup scenario. It must not be treated as verified savings or combined with unquantified benefits from other controls. 
+
+## 12.5 Step 12 Conclusion
+
+The cost-benefit and residual risk assessment demonstrates that Northbridge Services can adopt a combination of hardening, managed backup and TLS deployment at a fictional combined first-year cost of $610. 【1-138756】
+
+The illustrative managed-backup scenario produces a baseline ALE of $1,000, residual ALE of $200, annual expected benefit of $800 and first-year net benefit of $440. These values depend on classroom assumptions and have not been established through observed financial outcomes. 【1-138756】
+
+The residual risk reassessment indicates that the implemented controls have reduced exposure associated with the retired legacy service, archive disclosure and unauthorised network access. However, the loss-of-portal-content risk remains dependent on backup architecture limitations and recovery assurance evidence. 【1-138756】
+
+Further treatment should prioritise separately protected recovery arrangements, completion of outstanding control-validation evidence, TLS implementation where required and continuous monitoring. 【1-138756】
+
+**Calculation workbook:** GRC103_Week 3 Practical Lab Technical Risk Treatment - Implementing and Validating Security Controls_C11-26-CGRCE-17566_Venesha_Ochieng.xlsx 
+
+### Technical References
+
+- Ubuntu Server Firewall Documentation: https://ubuntu.com/server/docs/firewalls/
+- NGINX Directory Listing: https://nginx.org/en/docs/http/ngx_http_autoindex_module.html
+- NGINX Access Logging: https://nginx.org/en/docs/http/ngx_http_log_module.html
+- Course Basis: ICDFA Risk Treatment Strategies slides, GRC103 Module 3.
 
